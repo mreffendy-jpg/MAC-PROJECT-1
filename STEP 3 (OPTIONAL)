@@ -1,0 +1,24 @@
+python3 - << 'EOF'
+import time, platform, subprocess
+def chip():
+    try: return subprocess.run(["sysctl","-n","machdep.cpu.brand_string"],capture_output=True,text=True).stdout.strip()
+    except: return "unknown"
+def mm(A,B,n):
+    C=[[0.0]*n for _ in range(n)]
+    for i in range(n):
+        Ai,Ci=A[i],C[i]
+        for k in range(n):
+            a,Bk=Ai[k],B[k]
+            for j in range(n): Ci[j]+=a*Bk[j]
+    return C
+def mk(n): return [[(i*7+j*3)%10+0.5 for j in range(n)] for i in range(n)]
+print("="*44); print("CHIP:   ",chip()); print("macOS:  ",platform.mac_ver()[0]); print("="*44)
+print(f"{'N':>5}  {'MFLOP/s':>9}")
+for n in [48,64,80,96,112,128,144,160,176,192,224,256]:
+    A,B=mk(n),mk(n); mm(A,B,n)
+    t0=time.perf_counter()
+    for _ in range(3): mm(A,B,n)
+    sec=(time.perf_counter()-t0)/3
+    print(f"{n:5d}  {(2*n**3)/sec/1e6:9.1f}")
+print("="*44); print("Photograph this output.")
+EOF
